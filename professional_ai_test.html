@@ -587,6 +587,106 @@
             margin-right: 10px;
         }
 
+        /* 新增：錯誤處理對話框樣式 */
+        .error-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .error-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 450px;
+            margin: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .error-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .error-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .error-message {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .error-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        .btn-confirm {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cancel {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .connection-status.online {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .connection-status.offline {
+            background: linear-gradient(135deg, #f44336, #d32f2f);
+            color: white;
+        }
+
+        .connection-status.demo {
+            background: linear-gradient(135deg, #ff9800, #f57c00);
+            color: white;
+        }
+
         @media (max-width: 768px) {
             .hero-title {
                 font-size: 36px;
@@ -609,10 +709,22 @@
             .personality-traits {
                 grid-template-columns: 1fr;
             }
+
+            .error-content {
+                margin: 20px;
+                padding: 30px 20px;
+            }
+
+            .error-buttons {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- 連接狀態指示器 -->
+    <div class="connection-status" id="connectionStatus">連接中...</div>
+
     <div class="container">
         <!-- 標題區域 -->
         <div class="hero-section">
@@ -805,7 +917,12 @@
 
             <div style="margin-top: 30px; padding: 20px; background: rgba(102, 126, 234, 0.1); border-radius: 15px;">
                 <p style="color: #666; font-size: 14px; margin-bottom: 10px;">
-                    <strong>想了解更多AI人格特質？</strong>
+                    <strong>想了解更多AI人格特質？</strong><br>
+                    Nick Chang｜nickleo051216@gmail.com｜0932-684-051<br>
+                    個人網站：ZN Studio｜<a href="https://portaly.cc/zn.studio" target="_blank" style="color: #667eea;">https://portaly.cc/zn.studio</a><br>
+                    Threads： ZN Studio ( @nickai216 )  <a href="https://www.threads.com/@nickai216" target="_blank" style="color: #667eea;">https://www.threads.com/@nickai216</a><br>
+                    Line 社群：<a href="https://reurl.cc/1OZNAY" target="_blank" style="color: #667eea;">https://reurl.cc/1OZNAY</a><br>
+                    Line ： <a href="https://lin.ee/Faz0doj" target="_blank" style="color: #667eea;">https://lin.ee/Faz0doj</a>
                 </p>
                 <p style="color: #888; font-size: 12px; margin-bottom: 15px;">
                     加入Nick Chang的Line社群，與同類型夥伴交流！
@@ -833,7 +950,7 @@
 
     <script>
         // ===============================
-        // Firebase 設定區域（保持原有）
+        // 全域變數和設定
         // ===============================
         
         const firebaseConfig = {
@@ -848,33 +965,12 @@
 
         let db = null;
         let firebaseInitialized = false;
-
-        function initializeFirebase() {
-            try {
-                if (firebaseConfig.apiKey !== "API須更新") {
-                    firebase.initializeApp(firebaseConfig);
-                    db = firebase.firestore();
-                    firebaseInitialized = true;
-                    console.log('Firebase 初始化成功');
-                    setupRealTimeStats();
-                } else {
-                    console.log('Firebase 配置未完成，使用模擬模式');
-                    simulateStats();
-                }
-            } catch (error) {
-                console.error('Firebase 初始化失敗:', error);
-                simulateStats();
-            }
-        }
-
-        // ===============================
-        // AI人格測驗核心邏輯
-        // ===============================
-        
+        let connectionMode = 'connecting'; // connecting, online, offline, demo
         let currentQuestion = 0;
         let answers = {};
         let startTime = Date.now();
         let userResult = null;
+        let pendingLeaderboardRequest = false;
 
         // AI人格類型定義
         const personalityTypes = {
@@ -1009,7 +1105,178 @@
         ];
 
         // ===============================
-        // 測驗流程（保持原有結構）
+        // Firebase 和連接管理
+        // ===============================
+
+        async function initializeFirebase() {
+            updateConnectionStatus('connecting');
+            
+            try {
+                // 檢查Firebase配置是否完整
+                if (!firebaseConfig.apiKey || firebaseConfig.apiKey === "API須更新") {
+                    throw new Error('Firebase配置未完成');
+                }
+
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                
+                // 測試連接
+                await testFirebaseConnection();
+                
+                firebaseInitialized = true;
+                updateConnectionStatus('online');
+                console.log('Firebase 初始化成功');
+                setupRealTimeStats();
+                
+            } catch (error) {
+                console.error('Firebase 初始化失敗:', error);
+                firebaseInitialized = false;
+                
+                // 顯示錯誤對話框，讓用戶選擇
+                showConnectionErrorDialog(error.message);
+            }
+        }
+
+        async function testFirebaseConnection() {
+            // 嘗試讀取一個簡單的文檔來測試連接
+            const testRef = db.collection('test').doc('connection');
+            await testRef.get();
+        }
+
+        function updateConnectionStatus(status) {
+            connectionMode = status;
+            const statusElement = document.getElementById('connectionStatus');
+            
+            switch (status) {
+                case 'connecting':
+                    statusElement.textContent = '🔄 連接中...';
+                    statusElement.className = 'connection-status connecting';
+                    break;
+                case 'online':
+                    statusElement.textContent = '🟢 線上模式';
+                    statusElement.className = 'connection-status online';
+                    break;
+                case 'offline':
+                    statusElement.textContent = '🔴 離線模式';
+                    statusElement.className = 'connection-status offline';
+                    break;
+                case 'demo':
+                    statusElement.textContent = '🟡 演示模式';
+                    statusElement.className = 'connection-status demo';
+                    break;
+            }
+        }
+
+        function showConnectionErrorDialog(errorMessage) {
+            const dialog = document.createElement('div');
+            dialog.className = 'error-dialog';
+            dialog.innerHTML = `
+                <div class="error-content">
+                    <div class="error-icon">⚠️</div>
+                    <div class="error-title">連接失敗</div>
+                    <div class="error-message">
+                        無法連接到資料庫服務器。<br>
+                        <small style="color: #999;">錯誤詳情: ${errorMessage}</small><br><br>
+                        是否要使用演示模式繼續？<br>
+                        <small style="color: #666;">演示模式將顯示模擬數據，不會保存您的測驗結果。</small>
+                    </div>
+                    <div class="error-buttons">
+                        <button class="btn-confirm" onclick="useDemoMode()">是，使用演示模式</button>
+                        <button class="btn-cancel" onclick="useOfflineMode()">否，顯示離線狀態</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(dialog);
+        }
+
+        function useDemoMode() {
+            document.querySelector('.error-dialog')?.remove();
+            updateConnectionStatus('demo');
+            simulateStats();
+        }
+
+        function useOfflineMode() {
+            document.querySelector('.error-dialog')?.remove();
+            updateConnectionStatus('offline');
+            showOfflineStats();
+        }
+
+        function showOfflineStats() {
+            updateStatsUI({
+                total_users: 0,
+                most_common: '無數據',
+                rarest: '無數據',
+                online_now: 0
+            });
+        }
+
+        // ===============================
+        // 統計數據管理
+        // ===============================
+
+        function simulateStats() {
+            const mockStats = {
+                total_users: 15847,
+                most_common: 'AI效率王',
+                rarest: 'AI學者',
+                online_now: 2341
+            };
+            updateStatsUI(mockStats);
+            
+            // 模擬即時更新
+            setInterval(() => {
+                mockStats.total_users += Math.floor(Math.random() * 3);
+                mockStats.online_now = Math.floor(mockStats.total_users * (0.1 + Math.random() * 0.2));
+                updateStatsUI(mockStats);
+            }, 10000);
+        }
+
+        function updateStatsUI(stats) {
+            document.getElementById('totalUsers').textContent = stats.total_users?.toLocaleString() || '0';
+            document.getElementById('mostCommon').textContent = stats.most_common || '無數據';
+            document.getElementById('rarest').textContent = stats.rarest || '無數據';
+            document.getElementById('onlineNow').textContent = stats.online_now?.toLocaleString() || '0';
+        }
+
+        async function setupRealTimeStats() {
+            if (!firebaseInitialized) return;
+            
+            try {
+                db.collection('personality_stats').doc('global')
+                    .onSnapshot((doc) => {
+                        if (doc.exists) {
+                            const stats = doc.data();
+                            const distribution = stats.personality_distribution || {};
+                            
+                            // 計算最常見和最稀有的人格類型
+                            const sortedTypes = Object.entries(distribution)
+                                .sort((a, b) => b[1] - a[1]);
+                            
+                            const mostCommon = sortedTypes[0] ? personalityTypes[sortedTypes[0][0]]?.name : 'AI效率王';
+                            const rarest = sortedTypes[sortedTypes.length - 1] ? personalityTypes[sortedTypes[sortedTypes.length - 1][0]]?.name : 'AI學者';
+                            
+                            updateStatsUI({
+                                total_users: stats.total_users,
+                                most_common: mostCommon,
+                                rarest: rarest,
+                                online_now: Math.floor(stats.total_users * 0.15)
+                            });
+                        }
+                    }, (error) => {
+                        console.error('即時統計更新失敗:', error);
+                        // 降級到模擬模式
+                        updateConnectionStatus('demo');
+                        simulateStats();
+                    });
+            } catch (error) {
+                console.error('設置即時統計失敗:', error);
+                updateConnectionStatus('demo');
+                simulateStats();
+            }
+        }
+
+        // ===============================
+        // 測驗流程
         // ===============================
 
         function startTest() {
@@ -1127,7 +1394,7 @@
             setTraitStars('creativity', personality.traits.creativity);
             setTraitStars('understanding', personality.traits.understanding);
             
-            // 設定排名資訊（模擬）
+            // 設定排名資訊
             const typePercentage = getPersonalityPercentage(personalityType);
             document.getElementById('personalityRank').textContent = `#${Math.floor(Math.random() * 100) + 1}`;
             document.getElementById('personalityPercent').textContent = `${typePercentage}%`;
@@ -1162,15 +1429,27 @@
         }
 
         // ===============================
-        // 保持原有的輔助函數
+        // 資料庫操作
         // ===============================
 
         async function submitPersonalityResult(userData) {
-            if (!firebaseInitialized) {
+            // 如果是離線模式，不保存數據
+            if (connectionMode === 'offline') {
+                return {
+                    success: false,
+                    rank: 0,
+                    userId: 'offline_mode',
+                    message: '離線模式，數據未保存'
+                };
+            }
+            
+            // 如果不是線上模式，使用模擬數據
+            if (!firebaseInitialized || connectionMode !== 'online') {
                 return {
                     success: true,
                     rank: Math.floor(Math.random() * 1000) + 100,
-                    userId: 'demo_' + Date.now()
+                    userId: 'demo_' + Date.now(),
+                    message: '演示模式'
                 };
             }
 
@@ -1193,63 +1472,243 @@
                 return { success: true, rank: userRank, userId: userId };
             } catch (error) {
                 console.error('儲存失敗:', error);
+                
+                // 降級到演示模式
+                updateConnectionStatus('demo');
+                
                 return { 
                     success: false, 
                     error: error.message,
-                    rank: Math.floor(Math.random() * 1000) + 100
+                    rank: Math.floor(Math.random() * 1000) + 100,
+                    userId: 'error_' + Date.now()
                 };
             }
         }
 
         async function updatePersonalityStats(userData) {
-            if (!firebaseInitialized) return;
+            if (!firebaseInitialized || connectionMode !== 'online') return;
             
-            const statsRef = db.collection('personality_stats').doc('global');
-            
-            await db.runTransaction(async (transaction) => {
-                const doc = await transaction.get(statsRef);
+            try {
+                const statsRef = db.collection('personality_stats').doc('global');
                 
-                if (!doc.exists) {
-                    transaction.set(statsRef, {
-                        total_users: 1,
-                        personality_distribution: {
-                            [userData.personality_type]: 1
-                        },
-                        last_updated: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                } else {
-                    const currentStats = doc.data();
-                    transaction.update(statsRef, {
-                        total_users: firebase.firestore.FieldValue.increment(1),
-                        [`personality_distribution.${userData.personality_type}`]: firebase.firestore.FieldValue.increment(1),
-                        last_updated: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                }
-            });
+                await db.runTransaction(async (transaction) => {
+                    const doc = await transaction.get(statsRef);
+                    
+                    if (!doc.exists) {
+                        transaction.set(statsRef, {
+                            total_users: 1,
+                            personality_distribution: {
+                                [userData.personality_type]: 1
+                            },
+                            last_updated: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    } else {
+                        transaction.update(statsRef, {
+                            total_users: firebase.firestore.FieldValue.increment(1),
+                            [`personality_distribution.${userData.personality_type}`]: firebase.firestore.FieldValue.increment(1),
+                            last_updated: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error('更新統計失敗:', error);
+            }
         }
 
-        function simulateStats() {
-            const mockStats = {
-                total_users: 15847,
-                most_common: 'AI效率王',
-                rarest: 'AI學者',
-                online_now: 2341
-            };
-            updateStatsUI(mockStats);
+        async function calculateUserRank(personalityType) {
+            if (!firebaseInitialized || connectionMode !== 'online') {
+                return Math.floor(Math.random() * 500) + 50;
+            }
             
-            setInterval(() => {
-                mockStats.total_users += Math.floor(Math.random() * 3);
-                mockStats.online_now = Math.floor(mockStats.total_users * (0.1 + Math.random() * 0.2));
-                updateStatsUI(mockStats);
-            }, 10000);
+            try {
+                const snapshot = await db.collection('personality_rankings')
+                    .where('personality_type', '==', personalityType)
+                    .get();
+                return Math.floor(Math.random() * Math.max(1, snapshot.size)) + 1;
+            } catch (error) {
+                return Math.floor(Math.random() * 500) + 50;
+            }
         }
 
-        function updateStatsUI(stats) {
-            document.getElementById('totalUsers').textContent = stats.total_users?.toLocaleString() || '15,847';
-            document.getElementById('mostCommon').textContent = stats.most_common || 'AI效率王';
-            document.getElementById('rarest').textContent = stats.rarest || 'AI學者';
-            document.getElementById('onlineNow').textContent = stats.online_now?.toLocaleString() || '2,341';
+        // ===============================
+        // 排行榜功能（改進版）
+        // ===============================
+
+        async function showLeaderboard() {
+            if (pendingLeaderboardRequest) return;
+            pendingLeaderboardRequest = true;
+            
+            document.getElementById('leaderboardSection').style.display = 'block';
+            document.getElementById('leaderboardSection').scrollIntoView({ behavior: 'smooth' });
+            
+            const content = document.getElementById('leaderboardContent');
+            content.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <div class="spinner"></div>
+                    <p>載入排行榜中...</p>
+                </div>
+            `;
+            
+            try {
+                let leaderboardData;
+                
+                if (firebaseInitialized && connectionMode === 'online') {
+                    // 嘗試從Firebase載入真實數據
+                    leaderboardData = await loadRealLeaderboard();
+                } else if (connectionMode === 'demo') {
+                    // 使用模擬數據
+                    await new Promise(resolve => setTimeout(resolve, 1500)); // 模擬載入時間
+                    leaderboardData = generatePersonalityLeaderboard();
+                } else {
+                    // 離線模式
+                    throw new Error('離線模式無法載入排行榜');
+                }
+                
+                displayLeaderboard(leaderboardData);
+                
+            } catch (error) {
+                console.error('載入排行榜失敗:', error);
+                showLeaderboardError(error.message);
+            } finally {
+                pendingLeaderboardRequest = false;
+            }
         }
+
+        async function loadRealLeaderboard() {
+            try {
+                const snapshot = await db.collection('personality_rankings')
+                    .orderBy('timestamp', 'desc')
+                    .limit(50)
+                    .get();
+                
+                const leaderboard = [];
+                snapshot.forEach((doc, index) => {
+                    const data = doc.data();
+                    leaderboard.push({
+                        rank: index + 1,
+                        id: doc.id,
+                        username: data.username,
+                        location: data.location || '未知',
+                        occupation: data.occupation || '未知',
+                        personality_type: data.personality_type,
+                        timestamp: data.timestamp
+                    });
+                });
+                
+                return leaderboard;
+            } catch (error) {
+                console.error('讀取真實排行榜失敗:', error);
+                throw error;
+            }
+        }
+
+        function displayLeaderboard(leaderboardData) {
+            const content = document.getElementById('leaderboardContent');
+            
+            if (!leaderboardData || leaderboardData.length === 0) {
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 40px;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">📭</div>
+                        <h3 style="color: #666; margin-bottom: 15px;">暫無排行榜數據</h3>
+                        <p style="color: #999;">成為第一個完成測驗的人吧！</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            content.innerHTML = leaderboardData.map((user, index) => {
+                const medal = user.rank === 1 ? '🥇' : user.rank === 2 ? '🥈' : user.rank === 3 ? '🥉' : '';
+                const personality = personalityTypes[user.personality_type];
+                const isCurrentUser = userResult && user.id === userResult.userId;
+                
+                return `
+                    <div class="leaderboard-item" style="${isCurrentUser ? 'background: linear-gradient(135deg, #e3f2fd, #f0f8ff); border: 2px solid #2196f3;' : ''}">
+                        ${medal ? `<div class="medal">${medal}</div>` : ''}
+                        <div class="rank-number">#${user.rank}</div>
+                        <div class="user-info">
+                            <div class="username">${user.username} ${isCurrentUser ? '(你)' : ''}</div>
+                            <div class="user-details">${user.location} · ${user.occupation}</div>
+                        </div>
+                        <div class="user-personality">${personality.icon} ${personality.name}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function showLeaderboardError(errorMessage) {
+            const content = document.getElementById('leaderboardContent');
+            
+            content.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">⚠️</div>
+                    <h3 style="color: #e74c3c; margin-bottom: 15px;">載入失敗</h3>
+                    <p style="color: #666; margin-bottom: 20px;">無法載入排行榜數據</p>
+                    <small style="color: #999;">錯誤詳情: ${errorMessage}</small>
+                    <div style="margin-top: 30px;">
+                        <button class="btn" onclick="showLeaderboardFallbackDialog()" style="font-size: 14px; padding: 12px 24px;">
+                            顯示演示數據
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showLeaderboardFallbackDialog() {
+            const dialog = document.createElement('div');
+            dialog.className = 'error-dialog';
+            dialog.innerHTML = `
+                <div class="error-content">
+                    <div class="error-icon">📊</div>
+                    <div class="error-title">排行榜載入失敗</div>
+                    <div class="error-message">
+                        無法從服務器載入排行榜數據。<br><br>
+                        是否要顯示演示排行榜？<br>
+                        <small style="color: #666;">演示數據僅供參考，不代表真實排名。</small>
+                    </div>
+                    <div class="error-buttons">
+                        <button class="btn-confirm" onclick="showDemoLeaderboard()">是，顯示演示數據</button>
+                        <button class="btn-cancel" onclick="cancelLeaderboard()">否，返回結果頁面</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(dialog);
+        }
+
+        function showDemoLeaderboard() {
+            document.querySelector('.error-dialog')?.remove();
+            const demoData = generatePersonalityLeaderboard();
+            displayLeaderboard(demoData);
+        }
+
+        function cancelLeaderboard() {
+            document.querySelector('.error-dialog')?.remove();
+            hideLeaderboard();
+        }
+
+        function generatePersonalityLeaderboard() {
+            const names = ['AI探索家', '科技達人', '創意大師', '效率專家', '智慧學者', '創新先鋒'];
+            const locations = ['台北', '上海', '香港', '新加坡', '台中', '深圳'];
+            const occupations = ['工程師', '設計師', '學生', '創業者', '行銷人員', '產品經理'];
+            const types = ['pioneer', 'creator', 'efficiency', 'scholar'];
+            
+            return Array.from({length: 20}, (_, i) => ({
+                rank: i + 1,
+                id: `mock_${i}`,
+                username: names[Math.floor(Math.random() * names.length)] + (Math.floor(Math.random() * 999) + 1),
+                location: locations[Math.floor(Math.random() * locations.length)],
+                occupation: occupations[Math.floor(Math.random() * occupations.length)],
+                personality_type: types[Math.floor(Math.random() * types.length)]
+            }));
+        }
+
+        function hideLeaderboard() {
+            document.getElementById('leaderboardSection').style.display = 'none';
+            document.getElementById('resultContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ===============================
+        // 輔助函數
+        // ===============================
 
         function shareResult() {
             if (!userResult) return;
@@ -1264,6 +1723,7 @@ ${personality.subtitle}
 你的AI人格是什麼？快來測試看看！
 
 由 Nick Chang | ZN Studio 創作
+Nick Chang｜nickleo051216@gmail.com｜0932-684-051
 #AI人格測驗 #${personality.name} #人工智慧`;
             
             if (navigator.share) {
@@ -1278,10 +1738,6 @@ ${personality.subtitle}
                 });
             }
         }
-
-        // ===============================
-        // 保持原有的所有其他函數
-        // ===============================
 
         async function getUserIP() {
             try {
@@ -1301,46 +1757,6 @@ ${personality.subtitle}
             return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
         }
 
-        async function calculateUserRank(personalityType) {
-            if (!firebaseInitialized) return Math.floor(Math.random() * 500) + 50;
-            
-            try {
-                const snapshot = await db.collection('personality_rankings')
-                    .where('personality_type', '==', personalityType)
-                    .get();
-                return Math.floor(Math.random() * Math.max(1, snapshot.size)) + 1;
-            } catch (error) {
-                return Math.floor(Math.random() * 500) + 50;
-            }
-        }
-
-        function setupRealTimeStats() {
-            if (!firebaseInitialized) return;
-            
-            db.collection('personality_stats').doc('global')
-                .onSnapshot((doc) => {
-                    if (doc.exists) {
-                        const stats = doc.data();
-                        const distribution = stats.personality_distribution || {};
-                        
-                        // 計算最常見和最稀有的人格類型
-                        const sortedTypes = Object.entries(distribution)
-                            .sort((a, b) => b[1] - a[1]);
-                        
-                        const mostCommon = sortedTypes[0] ? personalityTypes[sortedTypes[0][0]]?.name : 'AI效率王';
-                        const rarest = sortedTypes[sortedTypes.length - 1] ? personalityTypes[sortedTypes[sortedTypes.length - 1][0]]?.name : 'AI學者';
-                        
-                        updateStatsUI({
-                            total_users: stats.total_users,
-                            most_common: mostCommon,
-                            rarest: rarest,
-                            online_now: Math.floor(stats.total_users * 0.15)
-                        });
-                    }
-                });
-        }
-
-        // 保持所有原有的UI函數
         function showLoading(message) {
             const overlay = document.createElement('div');
             overlay.className = 'loading-overlay';
@@ -1379,54 +1795,6 @@ ${personality.subtitle}
             }
         }
 
-        async function showLeaderboard() {
-            document.getElementById('leaderboardSection').style.display = 'block';
-            document.getElementById('leaderboardSection').scrollIntoView({ behavior: 'smooth' });
-            
-            // 模擬排行榜數據
-            const mockLeaderboard = generatePersonalityLeaderboard();
-            const content = document.getElementById('leaderboardContent');
-            
-            content.innerHTML = mockLeaderboard.map((user, index) => {
-                const medal = user.rank === 1 ? '🥇' : user.rank === 2 ? '🥈' : user.rank === 3 ? '🥉' : '';
-                const personality = personalityTypes[user.personality_type];
-                const isCurrentUser = userResult && user.id === userResult.userId;
-                
-                return `
-                    <div class="leaderboard-item" style="${isCurrentUser ? 'background: linear-gradient(135deg, #e3f2fd, #f0f8ff); border: 2px solid #2196f3;' : ''}">
-                        ${medal ? `<div class="medal">${medal}</div>` : ''}
-                        <div class="rank-number">#${user.rank}</div>
-                        <div class="user-info">
-                            <div class="username">${user.username} ${isCurrentUser ? '(你)' : ''}</div>
-                            <div class="user-details">${user.location} · ${user.occupation}</div>
-                        </div>
-                        <div class="user-personality">${personality.icon} ${personality.name}</div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function generatePersonalityLeaderboard() {
-            const names = ['AI探索家', '科技達人', '創意大師', '效率專家', '智慧學者', '創新先鋒'];
-            const locations = ['台北', '上海', '香港', '新加坡', '台中', '深圳'];
-            const occupations = ['工程師', '設計師', '學生', '創業者', '行銷人員', '產品經理'];
-            const types = ['pioneer', 'creator', 'efficiency', 'scholar'];
-            
-            return Array.from({length: 20}, (_, i) => ({
-                rank: i + 1,
-                id: `mock_${i}`,
-                username: names[Math.floor(Math.random() * names.length)] + (Math.floor(Math.random() * 999) + 1),
-                location: locations[Math.floor(Math.random() * locations.length)],
-                occupation: occupations[Math.floor(Math.random() * occupations.length)],
-                personality_type: types[Math.floor(Math.random() * types.length)]
-            }));
-        }
-
-        function hideLeaderboard() {
-            document.getElementById('leaderboardSection').style.display = 'none';
-            document.getElementById('resultContainer').scrollIntoView({ behavior: 'smooth' });
-        }
-
         function showNotification(message) {
             const notification = document.createElement('div');
             notification.textContent = message;
@@ -1451,7 +1819,10 @@ ${personality.subtitle}
             }, 3000);
         }
 
+        // ===============================
         // 初始化
+        // ===============================
+
         document.addEventListener('DOMContentLoaded', function() {
             initializeFirebase();
         });
@@ -1485,6 +1856,18 @@ ${personality.subtitle}
                 e.returnValue = '你的測驗進度將會遺失，確定要離開嗎？';
             }
         });
+
+        // 全域函數（供HTML onclick調用）
+        window.startTest = startTest;
+        window.selectOption = selectOption;
+        window.shareResult = shareResult;
+        window.showLeaderboard = showLeaderboard;
+        window.hideLeaderboard = hideLeaderboard;
+        window.useDemoMode = useDemoMode;
+        window.useOfflineMode = useOfflineMode;
+        window.showDemoLeaderboard = showDemoLeaderboard;
+        window.cancelLeaderboard = cancelLeaderboard;
+        window.showLeaderboardFallbackDialog = showLeaderboardFallbackDialog;
     </script>
 </body>
 </html>
