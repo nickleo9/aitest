@@ -1514,16 +1514,22 @@
             createCelebration();
         }
 
-        async function updatePersonalityStats(personalityType, result) {
-            // 嘗試獲取真實的分佈數據
-            let realStats = null;
-            if (firebaseInitialized && connectionMode === 'online') {
-                try {
-                    realStats = await getRealPersonalityDistribution();
-                } catch (error) {
-                    console.error('獲取真實統計失敗:', error);
-                }
-            }
+// 新的智能統計邏輯
+async function updatePersonalityStats(personalityType, result) {
+    // 嘗試獲取真實分佈數據
+    let realStats = await getRealPersonalityDistribution();
+    
+    if (realStats && realStats.totalUsers > 0) {
+        // 🟢 使用真實數據
+        const typeCount = realStats.distribution[personalityType];
+        const realPercentage = Math.round((typeCount / realStats.totalUsers) * 100);
+        
+        顯示: realPercentage%, typeCount人, "📊 基於真實用戶數據統計"
+    } else {
+        // 🟡 使用模擬數據
+        顯示: 固定百分比, 模擬人數, "🎯 演示數據（基於模擬統計）"
+    }
+}
             
             let typePercentage, sameTypeCount, rarity, dataSource;
             
