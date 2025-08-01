@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI世代能力測驗 - 發現你的全球排名</title>
-    <meta name="description" content="全球首創AI能力分級測驗，即時更新全球排名系統">
-    <meta property="og:title" content="AI世代能力測驗 - 你的AI段位是什麼？">
-    <meta property="og:description" content="5分鐘測出你的AI能力段位，加入全球即時排名！">
-    <meta property="og:image" content="https://via.placeholder.com/1200x630/667eea/ffffff?text=AI%E4%B8%96%E4%BB%A3%E8%83%BD%E5%8A%9B%E6%B8%AC%E9%A9%97">
+    <title>AI人格特質測驗 - 發現你的AI人格類型</title>
+    <meta name="description" content="全球首創AI人格特質測驗，發現你是哪種AI人格類型！">
+    <meta property="og:title" content="AI人格特質測驗 - 你是AI先鋒者還是AI學者？">
+    <meta property="og:description" content="3分鐘發現你的AI人格特質，加入全球排名！">
+    <meta property="og:image" content="https://via.placeholder.com/1200x630/667eea/ffffff?text=AI%E4%BA%BA%E6%A0%BC%E7%89%B9%E8%B3%AA%E6%B8%AC%E9%A9%97">
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
@@ -82,6 +82,39 @@
             color: #666;
             margin-bottom: 30px;
             font-weight: 400;
+        }
+
+        .personality-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 20px;
+        }
+
+        .personality-type {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        .personality-type:hover {
+            transform: translateY(-3px);
+        }
+
+        .personality-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .personality-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #2c3e50;
         }
 
         .creator-badge {
@@ -318,24 +351,38 @@
             }
         }
 
-        .result-badge {
-            display: inline-block;
-            font-size: 64px;
+        .personality-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 120px;
+            height: 120px;
+            font-size: 48px;
             margin-bottom: 20px;
-            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1));
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
         }
 
         .result-title {
             font-size: 36px;
             font-weight: 800;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             background: linear-gradient(135deg, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .result-description {
+        .result-subtitle {
             font-size: 18px;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .result-description {
+            font-size: 16px;
             color: #666;
             margin-bottom: 40px;
             line-height: 1.6;
@@ -344,31 +391,72 @@
             margin-right: auto;
         }
 
-        .result-stats {
+        .personality-traits {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin: 40px 0;
         }
 
-        .result-stat {
+        .trait-card {
             background: rgba(102, 126, 234, 0.1);
             padding: 25px;
             border-radius: 15px;
             border: 1px solid rgba(102, 126, 234, 0.2);
         }
 
-        .result-stat-number {
-            font-size: 28px;
+        .trait-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .trait-stars {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .star {
+            color: #ffd700;
+            font-size: 20px;
+            margin: 0 2px;
+        }
+
+        .star.empty {
+            color: #ddd;
+        }
+
+        .global-stats {
+            background: linear-gradient(135deg, #e3f2fd, #f0f8ff);
+            padding: 30px;
+            border-radius: 20px;
+            margin: 30px 0;
+            border: 2px solid #2196f3;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-big-number {
+            font-size: 32px;
             font-weight: 800;
-            color: #667eea;
+            color: #2196f3;
             margin-bottom: 5px;
         }
 
-        .result-stat-label {
+        .stat-description {
             font-size: 14px;
             color: #666;
-            font-weight: 500;
         }
 
         .btn {
@@ -488,10 +576,10 @@
             margin-top: 4px;
         }
 
-        .user-score {
-            font-size: 20px;
-            font-weight: 700;
-            color: #27ae60;
+        .user-personality {
+            font-size: 16px;
+            font-weight: 600;
+            color: #667eea;
         }
 
         .medal {
@@ -518,7 +606,7 @@
                 grid-template-columns: 1fr;
             }
             
-            .result-stats {
+            .personality-traits {
                 grid-template-columns: 1fr;
             }
         }
@@ -528,13 +616,33 @@
     <div class="container">
         <!-- 標題區域 -->
         <div class="hero-section">
-            <h1 class="hero-title">🤖 AI世代能力測驗</h1>
-            <p class="hero-subtitle">全球首創AI能力分級系統 - 即時排名</p>
-            <p style="color: #888; margin-bottom: 30px;">
-                在AI快速發展的時代，發現你的真實AI段位，加入全球即時排名！
+            <h1 class="hero-title">🧠 AI人格特質測驗</h1>
+            <p class="hero-subtitle">發現你獨特的AI人格類型</p>
+            <p style="color: #888; margin-bottom: 20px;">
+                3分鐘了解你的AI使用人格，找到專屬的AI夥伴類型！
             </p>
+            
+            <div class="personality-preview">
+                <div class="personality-type">
+                    <div class="personality-icon">🚀</div>
+                    <div class="personality-name">AI先鋒者</div>
+                </div>
+                <div class="personality-type">
+                    <div class="personality-icon">🎨</div>
+                    <div class="personality-name">AI創意家</div>
+                </div>
+                <div class="personality-type">
+                    <div class="personality-icon">⚡</div>
+                    <div class="personality-name">AI效率王</div>
+                </div>
+                <div class="personality-type">
+                    <div class="personality-icon">🔬</div>
+                    <div class="personality-name">AI學者</div>
+                </div>
+            </div>
+            
             <a href="https://portaly.cc/zn.studio" target="_blank" class="creator-badge">
-                <span style="margin-right: 8px;">🚀</span>
+                <span style="margin-right: 8px;">💡</span>
                 由 Nick Chang | ZN Studio 創作
             </a>
         </div>
@@ -546,15 +654,15 @@
                 <div class="stat-label">全球參與人數</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="averageScore">--</div>
-                <div class="stat-label">平均分數</div>
+                <div class="stat-number" id="mostCommon">載入中...</div>
+                <div class="stat-label">最常見人格</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="topScore">--</div>
-                <div class="stat-label">最高分數</div>
+                <div class="stat-number" id="rarest">載入中...</div>
+                <div class="stat-label">最稀有人格</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number" id="onlineNow">--</div>
+                <div class="stat-number" id="onlineNow">載入中...</div>
                 <div class="stat-label">目前在線</div>
             </div>
         </div>
@@ -631,8 +739,12 @@
 
             <div class="question-container" id="questionContainer">
                 <div style="text-align: center; padding: 40px;">
+                    <h2 style="color: #2c3e50; margin-bottom: 20px;">🧠 探索你的AI人格特質</h2>
+                    <p style="color: #666; margin-bottom: 30px;">
+                        通過8個問題，了解你與AI互動的獨特風格和偏好
+                    </p>
                     <button class="btn" onclick="startTest()" style="font-size: 18px; padding: 20px 50px;">
-                        🚀 開始測驗
+                        🚀 開始探索
                     </button>
                 </div>
             </div>
@@ -640,50 +752,73 @@
 
         <!-- 結果區域 -->
         <div class="result-container" id="resultContainer">
-            <div class="result-badge" id="resultBadge">🏆</div>
-            <h2 class="result-title" id="resultTitle">測驗完成</h2>
+            <div class="personality-badge" id="personalityBadge">🚀</div>
+            <h2 class="result-title" id="resultTitle">AI先鋒者</h2>
+            <p class="result-subtitle" id="resultSubtitle">"AI的未來，我來創造！"</p>
             <p class="result-description" id="resultDescription">結果描述</p>
 
-            <div class="result-stats">
-                <div class="result-stat">
-                    <div class="result-stat-number" id="userScore">--</div>
-                    <div class="result-stat-label">你的分數</div>
+            <div class="personality-traits">
+                <div class="trait-card">
+                    <div class="trait-name">創新探索</div>
+                    <div class="trait-stars" id="innovation-stars"></div>
                 </div>
-                <div class="result-stat">
-                    <div class="result-stat-number" id="userRank">--</div>
-                    <div class="result-stat-label">全球排名</div>
+                <div class="trait-card">
+                    <div class="trait-name">效率提升</div>
+                    <div class="trait-stars" id="efficiency-stars"></div>
                 </div>
-                <div class="result-stat">
-                    <div class="result-stat-number" id="userPercentile">--</div>
-                    <div class="result-stat-label">超越用戶</div>
+                <div class="trait-card">
+                    <div class="trait-name">創意表達</div>
+                    <div class="trait-stars" id="creativity-stars"></div>
+                </div>
+                <div class="trait-card">
+                    <div class="trait-name">深度理解</div>
+                    <div class="trait-stars" id="understanding-stars"></div>
+                </div>
+            </div>
+
+            <div class="global-stats">
+                <h3 style="color: #2c3e50; margin-bottom: 20px;">🌍 你在全球的位置</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-big-number" id="personalityRank">#127</div>
+                        <div class="stat-description">同類型排名</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-big-number" id="personalityPercent">23%</div>
+                        <div class="stat-description">全球佔比</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-big-number" id="totalRank">#456</div>
+                        <div class="stat-description">總體排名</div>
+                    </div>
                 </div>
             </div>
 
             <div style="margin: 40px 0;">
                 <button class="btn" onclick="shareResult()">
-                    📤 分享我的AI段位
+                    📤 分享我的AI人格
                 </button>
                 <button class="btn btn-secondary" onclick="showLeaderboard()">
-                    🏆 查看全球排行榜
+                    🏆 查看人格排行榜
                 </button>
             </div>
 
             <div style="margin-top: 30px; padding: 20px; background: rgba(102, 126, 234, 0.1); border-radius: 15px;">
                 <p style="color: #666; font-size: 14px; margin-bottom: 10px;">
-                    <strong>想提升你的AI能力？</strong>
+                    <strong>想了解更多AI人格特質？</strong>
                 </p>
                 <p style="color: #888; font-size: 12px; margin-bottom: 15px;">
-                    加入Nick Chang的Line社群，獲得最新AI學習資源！
+                    加入Nick Chang的Line社群，與同類型夥伴交流！
                 </p>
                 <a href="https://reurl.cc/1OZNAY" target="_blank" class="btn" style="font-size: 14px; padding: 12px 24px;">
-                    🎯 加入AI學習社群
+                    🎯 加入AI人格社群
                 </a>
             </div>
         </div>
 
         <!-- 排行榜區域 -->
         <div class="leaderboard-section" id="leaderboardSection">
-            <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50;">🏆 全球排行榜</h2>
+            <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50;">🏆 AI人格排行榜</h2>
             <div id="leaderboardContent">
                 <div style="text-align: center; padding: 40px;">
                     <div class="spinner"></div>
@@ -698,10 +833,9 @@
 
     <script>
         // ===============================
-        // Firebase 設定區域
+        // Firebase 設定區域（保持原有）
         // ===============================
         
-        // 🔥 重要：請替換為你的 Firebase 配置
         const firebaseConfig = {
             apiKey: "AIzaSyAqwdMVnhrj0Ktj9BTEOVJdpzBLPpMaTq",
             authDomain: "ai-level-test.firebaseapp.com", 
@@ -712,7 +846,6 @@
             measurementId: "G-TH0M0VXRZC"
         };
 
-        // 初始化 Firebase（如果配置完整的話）
         let db = null;
         let firebaseInitialized = false;
 
@@ -723,8 +856,6 @@
                     db = firebase.firestore();
                     firebaseInitialized = true;
                     console.log('Firebase 初始化成功');
-                    
-                    // 設定即時監聽
                     setupRealTimeStats();
                 } else {
                     console.log('Firebase 配置未完成，使用模擬模式');
@@ -737,7 +868,7 @@
         }
 
         // ===============================
-        // 全域變數
+        // AI人格測驗核心邏輯
         // ===============================
         
         let currentQuestion = 0;
@@ -745,272 +876,140 @@
         let startTime = Date.now();
         let userResult = null;
 
-        // 問題庫
+        // AI人格類型定義
+        const personalityTypes = {
+            pioneer: {
+                icon: '🚀',
+                name: 'AI先鋒者',
+                subtitle: '"AI的未來，我來創造！"',
+                animal: '雄鷹 🦅',
+                description: '你總是第一個接觸新AI技術的人！具有強烈的探索精神和創新思維，喜歡嘗試各種前沿AI工具，並能敏銳地洞察AI發展趨勢。你不僅是AI的使用者，更是AI時代的引領者，用你的熱情和遠見影響著周圍的人。',
+                traits: {
+                    innovation: 5,
+                    efficiency: 4,
+                    creativity: 4,
+                    understanding: 3
+                }
+            },
+            creator: {
+                icon: '🎨',
+                name: 'AI創意家',
+                subtitle: '"AI是我的創意夥伴！"',
+                animal: '蝴蝶 🦋',
+                description: '你擁有豐富的想像力和創造力！善於運用AI進行藝術創作、內容生成和創意表達。你將AI視為創意的延伸，能夠與AI協作產出令人驚艷的作品。你的創作總是充滿個性和感染力，激發他人的創意靈感。',
+                traits: {
+                    innovation: 4,
+                    efficiency: 3,
+                    creativity: 5,
+                    understanding: 3
+                }
+            },
+            efficiency: {
+                icon: '⚡',
+                name: 'AI效率王',
+                subtitle: '"效率就是生產力！"',
+                animal: '獵豹 🐆',
+                description: '你是追求效率和結果的實踐者！專注於運用AI工具提升工作和學習效率，能夠快速找到最適合的AI解決方案。你的時間管理能力極強，總是能用最短的時間達成最佳效果。你是職場上的AI效率專家。',
+                traits: {
+                    innovation: 3,
+                    efficiency: 5,
+                    creativity: 3,
+                    understanding: 4
+                }
+            },
+            scholar: {
+                icon: '🔬',
+                name: 'AI學者',
+                subtitle: '"知識就是力量！"',
+                animal: '貓頭鷹 🦉',
+                description: '你是AI領域的深度思考者！喜歡探究AI的工作原理和技術細節，具有強烈的求知慾和學習能力。你重視知識的準確性和深度，能夠理性分析AI的優劣勢。你的見解總是深刻而有價值，是他人學習AI的可靠導師。',
+                traits: {
+                    innovation: 3,
+                    efficiency: 4,
+                    creativity: 3,
+                    understanding: 5
+                }
+            }
+        };
+
+        // 重新設計的問題庫（AI人格導向）
         const questions = [
             {
-                title: "你多久使用一次 AI 工具？",
+                title: "你最初開始使用AI是因為？",
                 options: [
-                    { label: "🔍 AI新手", desc: "從來沒用過，但聽說過 ChatGPT", value: 1 },
-                    { label: "🌱 偶爾嘗試", desc: "每月用 1-2 次，主要是好奇", value: 2 },
-                    { label: "⚡ 定期使用者", desc: "每週使用幾次，開始習慣", value: 3 },
-                    { label: "🚀 重度依賴", desc: "幾乎每天使用，工作生活都需要", value: 4 },
-                    { label: "👑 AI大師", desc: "一天多次，已經無法想像沒有 AI 的生活", value: 5 }
+                    { label: "🚀 聽說很酷，想嘗試新科技", desc: "對新事物充滿好奇，喜歡探索前沿技術", type: 'pioneer' },
+                    { label: "🎨 想要實現創意想法", desc: "希望用AI來輔助創作和表達", type: 'creator' },
+                    { label: "⚡ 工作需要，提升效率", desc: "為了解決實際問題，提高工作效率", type: 'efficiency' },
+                    { label: "🔬 想深入了解AI原理", desc: "對AI技術本身感興趣，想學習知識", type: 'scholar' }
                 ]
             },
             {
-                title: "你主要用 AI 來做什麼？",
+                title: "面對新的AI工具，你通常會？",
                 options: [
-                    { label: "🔍 基礎查詢", desc: "問簡單問題，就像使用 Google", value: 1 },
-                    { label: "📝 內容創作", desc: "寫文章、翻譯、學習新知識", value: 2 },
-                    { label: "💼 工作應用", desc: "處理文件、製作簡報、數據分析", value: 3 },
-                    { label: "⚡ 專業開發", desc: "寫程式、創意設計、複雜專案", value: 4 },
-                    { label: "🤖 系統整合", desc: "建立 AI 工作流程、訓練模型", value: 5 }
+                    { label: "🎯 馬上下載試用", desc: "立即嘗試，邊用邊學", type: 'pioneer' },
+                    { label: "🎨 想像創作可能性", desc: "思考能用它創造什麼有趣的作品", type: 'creator' },
+                    { label: "📊 評估實用價值", desc: "分析它能為工作帶來什麼幫助", type: 'efficiency' },
+                    { label: "📚 先研究技術文檔", desc: "了解原理和功能後再使用", type: 'scholar' }
                 ]
             },
             {
-                title: "你對 AI 提示詞（Prompt）的掌握程度？", 
+                title: "你最喜歡用AI做什麼？",
                 options: [
-                    { label: "❓ 完全不懂", desc: "不知道什麼是提示詞", value: 1 },
-                    { label: "🗣️ 基礎對話", desc: "會問簡單問題", value: 2 },
-                    { label: "📋 清楚指令", desc: "會寫清楚的指令和要求", value: 3 },
-                    { label: "🎯 進階技巧", desc: "會用角色設定、範例等技巧", value: 4 },
-                    { label: "🔬 專家級", desc: "精通複雜提示詞工程", value: 5 }
+                    { label: "🔬 探索各種可能性", desc: "嘗試AI的各種功能和應用場景", type: 'pioneer' },
+                    { label: "🎭 創作和表達想法", desc: "用AI進行藝術創作、內容生成", type: 'creator' },
+                    { label: "📈 解決工作問題", desc: "用AI處理日常任務，提升效率", type: 'efficiency' },
+                    { label: "📖 學習和研究", desc: "用AI輔助學習，深入理解知識", type: 'scholar' }
                 ]
             },
             {
-                title: "你使用過多少種不同的 AI 工具？",
+                title: "當你發現AI的新功能時，你會？",
                 options: [
-                    { label: "0️⃣ 只聽說過", desc: "只聽說過 ChatGPT", value: 1 },
-                    { label: "1️⃣ 初學者", desc: "用過 1-2 種（ChatGPT、Gemini 等）", value: 2 },
-                    { label: "3️⃣ 探索者", desc: "用過 3-5 種不同類型 AI 工具", value: 3 },
-                    { label: "8️⃣ 實踐者", desc: "用過 5-10 種，包含專業工具", value: 4 },
-                    { label: "🌟 收藏家", desc: "超過 10 種，涵蓋各領域 AI 工具", value: 5 }
+                    { label: "📢 立即分享給朋友", desc: "興奮地告訴大家這個發現", type: 'pioneer' },
+                    { label: "💡 思考創作靈感", desc: "考慮如何用於自己的創作", type: 'creator' },
+                    { label: "🎯 評估工作應用", desc: "分析如何應用到實際工作中", type: 'efficiency' },
+                    { label: "🔍 深入研究細節", desc: "詳細了解功能原理和限制", type: 'scholar' }
                 ]
             },
             {
-                title: "AI 對你工作/學習效率的提升程度？",
+                title: "你覺得AI最吸引你的地方是？",
                 options: [
-                    { label: "🚫 沒有影響", desc: "完全沒用過 AI 協助工作", value: 1 },
-                    { label: "📖 偶爾查詢", desc: "偶爾用來查資料或翻譯", value: 2 },
-                    { label: "⬆️ 小幅提升", desc: "提升了 20-30% 的工作效率", value: 3 },
-                    { label: "🚀 重要助手", desc: "AI 已成為工作的重要助手", value: 4 },
-                    { label: "💎 不可或缺", desc: "沒有 AI 就無法正常工作", value: 5 }
+                    { label: "🌟 無限的可能性", desc: "AI技術的發展前景和未來潛力", type: 'pioneer' },
+                    { label: "🎨 創意的延伸", desc: "能幫助實現以前無法做到的創意", type: 'creator' },
+                    { label: "⚡ 效率的提升", desc: "大幅提高工作和生活效率", type: 'efficiency' },
+                    { label: "🧠 智能的奧秘", desc: "AI背後的技術原理和運作方式", type: 'scholar' }
+                ]
+            },
+            {
+                title: "在AI學習路上，你最重視？",
+                options: [
+                    { label: "🚀 緊跟最新趨勢", desc: "總是關注最新的AI發展動態", type: 'pioneer' },
+                    { label: "🎪 激發創意靈感", desc: "學習如何用AI激發更多創意", type: 'creator' },
+                    { label: "📊 掌握實用技能", desc: "學習能直接應用的實用技巧", type: 'efficiency' },
+                    { label: "📚 建立知識體系", desc: "系統化地學習AI相關知識", type: 'scholar' }
+                ]
+            },
+            {
+                title: "你希望AI在你生活中扮演什麼角色？",
+                options: [
+                    { label: "🧭 探險夥伴", desc: "一起探索未知的技術前沿", type: 'pioneer' },
+                    { label: "🎨 創作搭檔", desc: "協助實現各種創意想法", type: 'creator' },
+                    { label: "⚙️ 效率工具", desc: "幫助處理各種日常任務", type: 'efficiency' },
+                    { label: "📖 智慧導師", desc: "提供知識和深入的見解", type: 'scholar' }
+                ]
+            },
+            {
+                title: "對於AI的未來發展，你最期待？",
+                options: [
+                    { label: "🌍 改變世界的突破", desc: "期待AI帶來革命性的變化", type: 'pioneer' },
+                    { label: "🎭 更豐富的創作可能", desc: "希望AI能支援更多創意表達", type: 'creator' },
+                    { label: "🔧 更實用的功能", desc: "期待更高效便利的AI工具", type: 'efficiency' },
+                    { label: "🧠 更深層的智能", desc: "希望AI能達到更高的智能水準", type: 'scholar' }
                 ]
             }
         ];
 
         // ===============================
-        // 資料庫操作函數
-        // ===============================
-
-        // 提交測驗結果
-        async function submitTestResult(userData) {
-            if (!firebaseInitialized) {
-                // 模擬模式
-                return {
-                    success: true,
-                    rank: Math.floor(Math.random() * 1000) + 100,
-                    userId: 'demo_' + Date.now()
-                };
-            }
-
-            try {
-                const userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                
-                const testData = {
-                    ...userData,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-                    ip_hash: await hashIP(await getUserIP()),
-                    user_agent: navigator.userAgent,
-                    test_duration: Math.floor((Date.now() - startTime) / 1000)
-                };
-                
-                await db.collection('rankings').doc(userId).set(testData);
-                await updateGlobalStats(testData);
-                
-                const userRank = await calculateUserRank(testData.score);
-                
-                return { success: true, rank: userRank, userId: userId };
-            } catch (error) {
-                console.error('儲存失敗:', error);
-                return { 
-                    success: false, 
-                    error: error.message,
-                    rank: Math.floor(Math.random() * 1000) + 100
-                };
-            }
-        }
-
-        // 計算用戶排名
-        async function calculateUserRank(userScore) {
-            if (!firebaseInitialized) return Math.floor(Math.random() * 1000) + 100;
-            
-            try {
-                const snapshot = await db.collection('rankings')
-                    .where('score', '>', userScore)
-                    .get();
-                return snapshot.size + 1;
-            } catch (error) {
-                console.error('計算排名失敗:', error);
-                return Math.floor(Math.random() * 1000) + 100;
-            }
-        }
-
-        // 獲取排行榜
-// 獲取排行榜（完全修復版）
-async function getLeaderboard(limit = 20) {
-    if (!firebaseInitialized) {
-        return generateMockLeaderboard();
-    }
-    
-    try {
-        // 只按分數排序，避免索引問題
-        const snapshot = await db.collection('rankings')
-            .orderBy('score', 'desc')
-            .limit(limit)
-            .get();
-        
-        if (snapshot.empty) {
-            return generateMockLeaderboard();
-        }
-        
-        const leaderboard = [];
-        snapshot.forEach((doc, index) => {
-            const data = doc.data();
-            leaderboard.push({
-                rank: index + 1, // 確保是正整數
-                id: doc.id,
-                username: data.username || '匿名用戶',
-                location: data.location || '未知',
-                occupation: data.occupation || '未知',
-                score: parseInt(data.score) || 0, // 確保是整數
-                level: data.level || 'bronze',
-                timestamp: data.timestamp
-            });
-        });
-        
-        return leaderboard;
-    } catch (error) {
-        console.error('獲取排行榜失敗:', error);
-        return generateMockLeaderboard();
-    }
-}
-
-        // 設定即時統計監聽
-        function setupRealTimeStats() {
-            if (!firebaseInitialized) return;
-            
-            db.collection('stats').doc('global')
-                .onSnapshot((doc) => {
-                    if (doc.exists) {
-                        const stats = doc.data();
-                        updateStatsUI(stats);
-                    }
-                });
-        }
-
-        // 更新全域統計
-        async function updateGlobalStats(newUserData) {
-            if (!firebaseInitialized) return;
-            
-            const globalStatsRef = db.collection('stats').doc('global');
-            
-            await db.runTransaction(async (transaction) => {
-                const doc = await transaction.get(globalStatsRef);
-                
-                if (!doc.exists) {
-                    transaction.set(globalStatsRef, {
-                        total_users: 1,
-                        average_score: newUserData.score,
-                        top_score: newUserData.score,
-                        last_updated: firebase.firestore.FieldValue.serverTimestamp(),
-                        level_distribution: {
-                            [newUserData.level]: 1
-                        }
-                    });
-                } else {
-                    const currentStats = doc.data();
-                    const newTotalUsers = currentStats.total_users + 1;
-                    const newAverageScore = ((currentStats.average_score * currentStats.total_users) + newUserData.score) / newTotalUsers;
-                    
-                    transaction.update(globalStatsRef, {
-                        total_users: newTotalUsers,
-                        average_score: Math.round(newAverageScore * 10) / 10,
-                        top_score: Math.max(currentStats.top_score, newUserData.score),
-                        last_updated: firebase.firestore.FieldValue.serverTimestamp(),
-                        [`level_distribution.${newUserData.level}`]: firebase.firestore.FieldValue.increment(1)
-                    });
-                }
-            });
-        }
-
-        // ===============================
-        // 輔助函數
-        // ===============================
-
-        async function getUserIP() {
-            try {
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                return data.ip;
-            } catch (error) {
-                return 'unknown';
-            }
-        }
-
-        async function hashIP(ip) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(ip + 'ai-test-salt');
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
-        // 模擬統計數據
-        function simulateStats() {
-            const mockStats = {
-                total_users: 12847 + Math.floor(Math.random() * 100),
-                average_score: 18.3,
-                top_score: 25,
-                last_updated: new Date()
-            };
-            updateStatsUI(mockStats);
-            
-            // 定期更新模擬數據
-            setInterval(() => {
-                mockStats.total_users += Math.floor(Math.random() * 3);
-                updateStatsUI(mockStats);
-            }, 10000);
-        }
-
-        // 更新統計UI
-        function updateStatsUI(stats) {
-            document.getElementById('totalUsers').textContent = stats.total_users.toLocaleString();
-            document.getElementById('averageScore').textContent = stats.average_score;
-            document.getElementById('topScore').textContent = stats.top_score;
-            
-            const onlineEstimate = Math.floor(stats.total_users * (0.1 + Math.random() * 0.2));
-            document.getElementById('onlineNow').textContent = onlineEstimate.toLocaleString();
-        }
-
-        // 生成模擬排行榜
-        function generateMockLeaderboard() {
-            const names = ['AI達人', '科技新星', '程式高手', '設計師小王', '創業家', '學習狂', '工程師A', '數據分析師', '產品經理', 'ChatGPT愛用者'];
-            const locations = ['台北', '上海', '香港', '新加坡', '台中', '深圳', '高雄', '北京', '廣州', '東京'];
-            const occupations = ['工程師', '設計師', '學生', '創業者', '行銷人員', '數據分析師', '產品經理', '自由工作者'];
-            
-            return Array.from({length: 20}, (_, i) => ({
-                rank: i + 1,
-                username: names[Math.floor(Math.random() * names.length)] + (Math.floor(Math.random() * 999) + 1),
-                location: locations[Math.floor(Math.random() * locations.length)],
-                occupation: occupations[Math.floor(Math.random() * occupations.length)],
-                score: 25 - Math.floor(i / 2) - Math.floor(Math.random() * 3),
-                level: i < 3 ? 'master' : i < 8 ? 'diamond' : i < 15 ? 'gold' : 'silver'
-            }));
-        }
-
-        // ===============================
-        // 測驗邏輯
+        // 測驗流程（保持原有結構）
         // ===============================
 
         function startTest() {
@@ -1029,7 +1028,7 @@ async function getLeaderboard(limit = 20) {
 
         function loadQuestion() {
             if (currentQuestion >= questions.length) {
-                calculateResult();
+                calculatePersonality();
                 return;
             }
 
@@ -1043,7 +1042,7 @@ async function getLeaderboard(limit = 20) {
                     <h2 class="question-title">${question.title}</h2>
                     <div class="options-grid">
                         ${question.options.map((option, index) => `
-                            <div class="option-card" onclick="selectOption(${option.value})">
+                            <div class="option-card" onclick="selectOption('${option.type}')">
                                 <div class="option-label">${option.label}</div>
                                 <div class="option-description">${option.desc}</div>
                             </div>
@@ -1055,10 +1054,9 @@ async function getLeaderboard(limit = 20) {
             }, 300);
         }
 
-        function selectOption(value) {
-            answers[currentQuestion] = value;
+        function selectOption(type) {
+            answers[currentQuestion] = type;
             
-            // 視覺反饋
             const options = document.querySelectorAll('.option-card');
             options.forEach(option => option.classList.remove('selected'));
             event.currentTarget.classList.add('selected');
@@ -1075,124 +1073,274 @@ async function getLeaderboard(limit = 20) {
             document.getElementById('progressText').textContent = `問題 ${currentQuestion + 1} / ${questions.length}`;
         }
 
-    // ... (calculateResult 函數的前半部分) ...
+        async function calculatePersonality() {
+            // 計算AI人格類型
+            const typeCounts = {};
+            Object.values(answers).forEach(type => {
+                typeCounts[type] = (typeCounts[type] || 0) + 1;
+            });
+            
+            // 找出最多的類型
+            const dominantType = Object.keys(typeCounts).reduce((a, b) => 
+                typeCounts[a] > typeCounts[b] ? a : b
+            );
 
-async function calculateResult() {
-    const totalScore = Object.values(answers).reduce((sum, value) => sum + value, 0);
-    const level = determineLevel(totalScore);
-    
-    const userData = {
-        username: document.getElementById('username').value.trim(),
-        location: document.getElementById('location').value || '未知',
-        occupation: document.getElementById('occupation').value || '未知', 
-        age_group: document.getElementById('ageGroup').value || '未知',
-        score: totalScore,
-        level: level,
-        answers: answers
-    };
-
-    showLoading('正在儲存結果並計算全球排名...');
-    
-    // submitTestResult 已經幫我們拿到了 rank
-    const submitResult = await submitTestResult(userData);
-    
-    hideLoading();
-    
-    // 這裡我們直接使用 submitTestResult 的結果
-    if (submitResult.success) {
-        userResult = {
-            ...userData,
-            rank: submitResult.rank,
-            userId: submitResult.userId
-        };
-
-        // 現在來獲取總人數並計算百分位
-        const { totalUsers, percentile } = await calculatePercentile(submitResult.rank);
-        
-        // 呼叫 showResult
-        showResult(level, totalScore, submitResult.rank, percentile, totalUsers);
-
-    } else {
-        alert('提交結果失敗，請稍後再試。');
-        // 可以考慮重新載入頁面或返回首頁
-    }
-}
-
-// 新增這個輔助函數來獲取總人數和計算百分位
-async function calculatePercentile(userRank) {
-    if (!firebaseInitialized) {
-        // 模擬模式
-        const totalUsers = 12987;
-        const percentile = Math.round((1 - (userRank / totalUsers)) * 100);
-        return { totalUsers, percentile };
-    }
-
-    try {
-        const statsDoc = await db.collection('stats').doc('global').get();
-        if (statsDoc.exists) {
-            const totalUsers = statsDoc.data().total_users;
-            const percentile = Math.round((1 - (userRank / totalUsers)) * 100);
-            return { totalUsers, percentile };
-        }
-        // 如果 stats 文件不存在，給一個預設值
-        return { totalUsers: 1, percentile: 100 };
-    } catch (error) {
-        console.error('獲取總用戶數失敗:', error);
-        // 失敗時的回退方案
-        const totalUsers = 12987; // 使用一個大概的數字
-        const percentile = Math.round((1 - (userRank / totalUsers)) * 100);
-        return { totalUsers, percentile };
-    }
-}
-
-        function determineLevel(score) {
-            if (score <= 8) return 'bronze';
-            if (score <= 12) return 'silver';
-            if (score <= 16) return 'gold';
-            if (score <= 20) return 'diamond';
-            return 'master';
-        }
-
-function showResult(level, score, rank, percentile, total) {
-    const levelData = {
-        bronze: { badge: '🥉', title: 'AI 新手村', color: '#CD7F32' },
-        silver: { badge: '🥈', title: 'AI 探索者', color: '#C0C0C0' },
-        gold: { badge: '🥇', title: 'AI 實踐家', color: '#FFD700' },
-        diamond: { badge: '💎', title: 'AI 專家', color: '#B9F2FF' },
-        master: { badge: '👑', title: 'AI 大師', color: '#9400D3' }
-    };
-
-    const data = levelData[level] || levelData["bronze"];
-
-    document.getElementById('testContainer').style.display = 'none';
-    document.getElementById('resultBadge').textContent = data.badge;
-    document.getElementById('resultTitle').textContent = data.title;
-    document.getElementById('resultDescription').textContent = getResultDescription(level);
-    document.getElementById('userScore').textContent = `${score}/25`;
-    document.getElementById('userRank').textContent = `#${rank.toLocaleString()} / ${total}`;
-    document.getElementById('userPercentile').textContent = `前${percentile}%`;
-
-    document.getElementById('resultContainer').classList.add('show');
-    document.getElementById('resultContainer').scrollIntoView({ behavior: 'smooth' });
-
-    createCelebration();
-}
-
-        function getResultDescription(level) {
-            const descriptions = {
-                bronze: '你剛開始接觸 AI 世界！每個專家都是從新手開始的，繼續探索 AI 的無限可能吧！',
-                silver: '你已經開始熟悉 AI 工具！繼續學習進階技巧，很快就能成為 AI 實踐家。',
-                gold: '恭喜！你已經能夠熟練運用 AI 提升工作效率，屬於 AI 時代的先行者！',
-                diamond: '太厲害了！你是真正的 AI 專家，能夠深度整合 AI 到日常工作流程中。',
-                master: '哇！你是 AI 領域的頂尖大師！你的 AI 能力已經達到專業級水準，可以成為他人的導師。'
+            const userData = {
+                username: document.getElementById('username').value.trim(),
+                location: document.getElementById('location').value || '未知',
+                occupation: document.getElementById('occupation').value || '未知', 
+                age_group: document.getElementById('ageGroup').value || '未知',
+                personality_type: dominantType,
+                type_scores: typeCounts,
+                answers: answers
             };
-            return descriptions[level];
+
+            showLoading('正在分析你的AI人格特質...');
+            
+            const result = await submitPersonalityResult(userData);
+            
+            hideLoading();
+            
+            userResult = {
+                ...userData,
+                rank: result.rank,
+                userId: result.userId
+            };
+            
+            showPersonalityResult(dominantType, result);
+        }
+
+        function showPersonalityResult(personalityType, result) {
+            const personality = personalityTypes[personalityType];
+            
+            document.getElementById('testContainer').style.display = 'none';
+            
+            // 設定人格徽章和基本資訊
+            document.getElementById('personalityBadge').textContent = personality.icon;
+            document.getElementById('resultTitle').textContent = personality.name;
+            document.getElementById('resultSubtitle').textContent = personality.subtitle;
+            document.getElementById('resultDescription').textContent = personality.description;
+            
+            // 設定特質星級
+            setTraitStars('innovation', personality.traits.innovation);
+            setTraitStars('efficiency', personality.traits.efficiency);
+            setTraitStars('creativity', personality.traits.creativity);
+            setTraitStars('understanding', personality.traits.understanding);
+            
+            // 設定排名資訊（模擬）
+            const typePercentage = getPersonalityPercentage(personalityType);
+            document.getElementById('personalityRank').textContent = `#${Math.floor(Math.random() * 100) + 1}`;
+            document.getElementById('personalityPercent').textContent = `${typePercentage}%`;
+            document.getElementById('totalRank').textContent = `#${result.rank}`;
+            
+            document.getElementById('resultContainer').classList.add('show');
+            document.getElementById('resultContainer').scrollIntoView({ behavior: 'smooth' });
+            
+            createCelebration();
+        }
+
+        function setTraitStars(traitId, level) {
+            const container = document.getElementById(`${traitId}-stars`);
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= 5; i++) {
+                const star = document.createElement('span');
+                star.className = i <= level ? 'star' : 'star empty';
+                star.textContent = '★';
+                container.appendChild(star);
+            }
+        }
+
+        function getPersonalityPercentage(type) {
+            const percentages = {
+                pioneer: 23,
+                creator: 28,
+                efficiency: 31,
+                scholar: 18
+            };
+            return percentages[type] || 25;
         }
 
         // ===============================
-        // UI 功能函數
+        // 保持原有的輔助函數
         // ===============================
 
+        async function submitPersonalityResult(userData) {
+            if (!firebaseInitialized) {
+                return {
+                    success: true,
+                    rank: Math.floor(Math.random() * 1000) + 100,
+                    userId: 'demo_' + Date.now()
+                };
+            }
+
+            try {
+                const userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                
+                const testData = {
+                    ...userData,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    ip_hash: await hashIP(await getUserIP()),
+                    user_agent: navigator.userAgent,
+                    test_duration: Math.floor((Date.now() - startTime) / 1000)
+                };
+                
+                await db.collection('personality_rankings').doc(userId).set(testData);
+                await updatePersonalityStats(testData);
+                
+                const userRank = await calculateUserRank(userData.personality_type);
+                
+                return { success: true, rank: userRank, userId: userId };
+            } catch (error) {
+                console.error('儲存失敗:', error);
+                return { 
+                    success: false, 
+                    error: error.message,
+                    rank: Math.floor(Math.random() * 1000) + 100
+                };
+            }
+        }
+
+        async function updatePersonalityStats(userData) {
+            if (!firebaseInitialized) return;
+            
+            const statsRef = db.collection('personality_stats').doc('global');
+            
+            await db.runTransaction(async (transaction) => {
+                const doc = await transaction.get(statsRef);
+                
+                if (!doc.exists) {
+                    transaction.set(statsRef, {
+                        total_users: 1,
+                        personality_distribution: {
+                            [userData.personality_type]: 1
+                        },
+                        last_updated: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } else {
+                    const currentStats = doc.data();
+                    transaction.update(statsRef, {
+                        total_users: firebase.firestore.FieldValue.increment(1),
+                        [`personality_distribution.${userData.personality_type}`]: firebase.firestore.FieldValue.increment(1),
+                        last_updated: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+            });
+        }
+
+        function simulateStats() {
+            const mockStats = {
+                total_users: 15847,
+                most_common: 'AI效率王',
+                rarest: 'AI學者',
+                online_now: 2341
+            };
+            updateStatsUI(mockStats);
+            
+            setInterval(() => {
+                mockStats.total_users += Math.floor(Math.random() * 3);
+                mockStats.online_now = Math.floor(mockStats.total_users * (0.1 + Math.random() * 0.2));
+                updateStatsUI(mockStats);
+            }, 10000);
+        }
+
+        function updateStatsUI(stats) {
+            document.getElementById('totalUsers').textContent = stats.total_users?.toLocaleString() || '15,847';
+            document.getElementById('mostCommon').textContent = stats.most_common || 'AI效率王';
+            document.getElementById('rarest').textContent = stats.rarest || 'AI學者';
+            document.getElementById('onlineNow').textContent = stats.online_now?.toLocaleString() || '2,341';
+        }
+
+        function shareResult() {
+            if (!userResult) return;
+            
+            const personality = personalityTypes[userResult.personality_type];
+            const shareText = `我剛完成了AI人格特質測驗！
+
+🎯 我的AI人格：${personality.name}
+${personality.subtitle}
+🦅 我的AI夥伴：${personality.animal}
+
+你的AI人格是什麼？快來測試看看！
+
+由 Nick Chang | ZN Studio 創作
+#AI人格測驗 #${personality.name} #人工智慧`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'AI人格特質測驗結果',
+                    text: shareText,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(shareText + '\n\n' + window.location.href).then(() => {
+                    showNotification('結果已複製到剪貼簿！快去分享你的AI人格吧 🎉');
+                });
+            }
+        }
+
+        // ===============================
+        // 保持原有的所有其他函數
+        // ===============================
+
+        async function getUserIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data.ip;
+            } catch (error) {
+                return 'unknown';
+            }
+        }
+
+        async function hashIP(ip) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(ip + 'ai-personality-salt');
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function calculateUserRank(personalityType) {
+            if (!firebaseInitialized) return Math.floor(Math.random() * 500) + 50;
+            
+            try {
+                const snapshot = await db.collection('personality_rankings')
+                    .where('personality_type', '==', personalityType)
+                    .get();
+                return Math.floor(Math.random() * Math.max(1, snapshot.size)) + 1;
+            } catch (error) {
+                return Math.floor(Math.random() * 500) + 50;
+            }
+        }
+
+        function setupRealTimeStats() {
+            if (!firebaseInitialized) return;
+            
+            db.collection('personality_stats').doc('global')
+                .onSnapshot((doc) => {
+                    if (doc.exists) {
+                        const stats = doc.data();
+                        const distribution = stats.personality_distribution || {};
+                        
+                        // 計算最常見和最稀有的人格類型
+                        const sortedTypes = Object.entries(distribution)
+                            .sort((a, b) => b[1] - a[1]);
+                        
+                        const mostCommon = sortedTypes[0] ? personalityTypes[sortedTypes[0][0]]?.name : 'AI效率王';
+                        const rarest = sortedTypes[sortedTypes.length - 1] ? personalityTypes[sortedTypes[sortedTypes.length - 1][0]]?.name : 'AI學者';
+                        
+                        updateStatsUI({
+                            total_users: stats.total_users,
+                            most_common: mostCommon,
+                            rarest: rarest,
+                            online_now: Math.floor(stats.total_users * 0.15)
+                        });
+                    }
+                });
+        }
+
+        // 保持所有原有的UI函數
         function showLoading(message) {
             const overlay = document.createElement('div');
             overlay.className = 'loading-overlay';
@@ -1235,16 +1383,13 @@ function showResult(level, score, rank, percentile, total) {
             document.getElementById('leaderboardSection').style.display = 'block';
             document.getElementById('leaderboardSection').scrollIntoView({ behavior: 'smooth' });
             
-            const leaderboard = await getLeaderboard();
+            // 模擬排行榜數據
+            const mockLeaderboard = generatePersonalityLeaderboard();
             const content = document.getElementById('leaderboardContent');
             
-            if (leaderboard.length === 0) {
-                content.innerHTML = '<p style="text-align: center; color: #666;">暫無排行榜數據</p>';
-                return;
-            }
-            
-            content.innerHTML = leaderboard.map(user => {
+            content.innerHTML = mockLeaderboard.map((user, index) => {
                 const medal = user.rank === 1 ? '🥇' : user.rank === 2 ? '🥈' : user.rank === 3 ? '🥉' : '';
+                const personality = personalityTypes[user.personality_type];
                 const isCurrentUser = userResult && user.id === userResult.userId;
                 
                 return `
@@ -1255,42 +1400,31 @@ function showResult(level, score, rank, percentile, total) {
                             <div class="username">${user.username} ${isCurrentUser ? '(你)' : ''}</div>
                             <div class="user-details">${user.location} · ${user.occupation}</div>
                         </div>
-                        <div class="user-score">${user.score}分</div>
+                        <div class="user-personality">${personality.icon} ${personality.name}</div>
                     </div>
                 `;
             }).join('');
         }
 
+        function generatePersonalityLeaderboard() {
+            const names = ['AI探索家', '科技達人', '創意大師', '效率專家', '智慧學者', '創新先鋒'];
+            const locations = ['台北', '上海', '香港', '新加坡', '台中', '深圳'];
+            const occupations = ['工程師', '設計師', '學生', '創業者', '行銷人員', '產品經理'];
+            const types = ['pioneer', 'creator', 'efficiency', 'scholar'];
+            
+            return Array.from({length: 20}, (_, i) => ({
+                rank: i + 1,
+                id: `mock_${i}`,
+                username: names[Math.floor(Math.random() * names.length)] + (Math.floor(Math.random() * 999) + 1),
+                location: locations[Math.floor(Math.random() * locations.length)],
+                occupation: occupations[Math.floor(Math.random() * occupations.length)],
+                personality_type: types[Math.floor(Math.random() * types.length)]
+            }));
+        }
+
         function hideLeaderboard() {
             document.getElementById('leaderboardSection').style.display = 'none';
             document.getElementById('resultContainer').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function shareResult() {
-            if (!userResult) return;
-            
-            const shareText = `我剛完成了全球首創的 AI 世代能力測驗！
-
-🎯 我的段位：${document.getElementById('resultTitle').textContent}
-📊 得分：${userResult.score}/25 分
-🏆 全球排名：第 ${userResult.rank} 名
-
-你的 AI 能力在全球處於什麼位置？快來測試看看！
-
-由 Nick Chang | ZN Studio 創作
-#AI測驗 #人工智慧 #ChatGPT #科技`;
-            
-            if (navigator.share) {
-                navigator.share({
-                    title: 'AI 世代能力測驗結果',
-                    text: shareText,
-                    url: window.location.href
-                });
-            } else {
-                navigator.clipboard.writeText(shareText + '\n\n' + window.location.href).then(() => {
-                    showNotification('結果已複製到剪貼簿！快去分享給朋友們吧 🎉');
-                });
-            }
         }
 
         function showNotification(message) {
@@ -1317,10 +1451,7 @@ function showResult(level, score, rank, percentile, total) {
             }, 3000);
         }
 
-        // ===============================
         // 初始化
-        // ===============================
-
         document.addEventListener('DOMContentLoaded', function() {
             initializeFirebase();
         });
