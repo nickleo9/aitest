@@ -857,40 +857,44 @@
         }
 
         // 獲取排行榜
-        async function getLeaderboard(limit = 20) {
-            if (!firebaseInitialized) {
-                // 模擬數據
-                return generateMockLeaderboard();
-            }
-            
-            try {
-                const snapshot = await db.collection('rankings')
-                    .orderBy('score', 'desc')
-                    .orderBy('timestamp', 'asc')
-                    .limit(limit)
-                    .get();
-                
-                const leaderboard = [];
-                snapshot.forEach((doc, index) => {
-                    const data = doc.data();
-                    leaderboard.push({
-                        rank: index + 1,
-                        id: doc.id,
-                        username: data.username,
-                        location: data.location || '未知',
-                        occupation: data.occupation || '未知',
-                        score: data.score,
-                        level: data.level,
-                        timestamp: data.timestamp
-                    });
-                });
-                
-                return leaderboard;
-            } catch (error) {
-                console.error('獲取排行榜失敗:', error);
-                return generateMockLeaderboard();
-            }
+// 獲取排行榜（完全修復版）
+async function getLeaderboard(limit = 20) {
+    if (!firebaseInitialized) {
+        return generateMockLeaderboard();
+    }
+    
+    try {
+        // 只按分數排序，避免索引問題
+        const snapshot = await db.collection('rankings')
+            .orderBy('score', 'desc')
+            .limit(limit)
+            .get();
+        
+        if (snapshot.empty) {
+            return generateMockLeaderboard();
         }
+        
+        const leaderboard = [];
+        snapshot.forEach((doc, index) => {
+            const data = doc.data();
+            leaderboard.push({
+                rank: index + 1, // 確保是正整數
+                id: doc.id,
+                username: data.username || '匿名用戶',
+                location: data.location || '未知',
+                occupation: data.occupation || '未知',
+                score: parseInt(data.score) || 0, // 確保是整數
+                level: data.level || 'bronze',
+                timestamp: data.timestamp
+            });
+        });
+        
+        return leaderboard;
+    } catch (error) {
+        console.error('獲取排行榜失敗:', error);
+        return generateMockLeaderboard();
+    }
+}
 
         // 設定即時統計監聽
         function setupRealTimeStats() {
