@@ -1516,10 +1516,10 @@
             createCelebration();
             
             // 異步載入真實統計資訊
-            await updatePersonalityStats(personalityType, result);
+            await displayResultStats(personalityType, result);
         }
 
-        async function updatePersonalityStats(personalityType, result) {
+        async function displayResultStats(personalityType, result) {
             // 嘗試獲取真實的分佈數據
             let realStats = null;
             let typePercentage, sameTypeCount, rarity, dataSource;
@@ -1696,7 +1696,7 @@
                 };
                 
                 await db.collection('personality_rankings').doc(userId).set(testData);
-                const totalUsers = await updatePersonalityStats(testData);
+                const totalUsers = await updateGlobalStatsInDB(testData);
                 
                 return { success: true, totalUsers: totalUsers, userId: userId };
             } catch (error) {
@@ -1714,7 +1714,7 @@
             }
         }
 
-        async function updatePersonalityStats(userData) {
+        async function updateGlobalStatsInDB(userData) {
             if (!firebaseInitialized || connectionMode !== 'online') return 15847;
             
             try {
