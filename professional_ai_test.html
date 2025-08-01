@@ -1514,14 +1514,78 @@
             createCelebration();
         }
 
-        function updatePersonalityStats(personalityType, result) {
-            const typePercentage = getPersonalityPercentage(personalityType);
-            const sameTypeCount = Math.floor(result.totalUsers * typePercentage / 100) || Math.floor(Math.random() * 3000) + 500;
-            const rarity = getRarityLevel(typePercentage);
+        async function updatePersonalityStats(personalityType, result) {
+            // 嘗試獲取真實的分佈數據
+            let realStats = null;
+            if (firebaseInitialized && connectionMode === 'online') {
+                try {
+                    realStats = await getRealPersonalityDistribution();
+                } catch (error) {
+                    console.error('獲取真實統計失敗:', error);
+                }
+            }
+            
+            let typePercentage, sameTypeCount, rarity, dataSource;
+            
+            if (realStats && realStats.totalUsers > 0) {
+                // 使用真實數據
+                const typeCount = realStats.distribution[personalityType] || 0;
+                typePercentage = Math.round((typeCount / realStats.totalUsers) * 100);
+                sameTypeCount = typeCount;
+                rarity = getRarityLevel(typePercentage);
+                dataSource = 'real';
+            } else {
+                // 使用模擬數據
+                typePercentage = getPersonalityPercentage(personalityType);
+                sameTypeCount = Math.floor((result.totalUsers || 15847) * typePercentage / 100);
+                rarity = getRarityLevel(typePercentage);
+                dataSource = 'simulated';
+            }
             
             document.getElementById('sameTypeCount').textContent = sameTypeCount.toLocaleString();
             document.getElementById('personalityPercent').textContent = `${typePercentage}%`;
             document.getElementById('personalityRarity').textContent = rarity;
+            
+            // 顯示數據來源標示
+            const statsContainer = document.querySelector('.global-stats');
+            const existingLabel = statsContainer.querySelector('.data-source-label');
+            if (existingLabel) existingLabel.remove();
+            
+            const dataLabel = document.createElement('div');
+            dataLabel.className = 'data-source-label';
+            dataLabel.style.cssText = `
+                text-align: center;
+                margin-top: 10px;
+                font-size: 12px;
+                color: #888;
+                opacity: 0.8;
+            `;
+            
+            if (dataSource === 'real') {
+                dataLabel.innerHTML = `📊 基於真實用戶數據統計`;
+            } else {
+                dataLabel.innerHTML = `🎯 演示數據（基於模擬統計）`;
+            }
+            
+            statsContainer.appendChild(dataLabel);
+        }
+
+        async function getRealPersonalityDistribution() {
+            if (!firebaseInitialized || connectionMode !== 'online') {
+                throw new Error('Firebase未初始化或非線上模式');
+            }
+            
+            const doc = await db.collection('personality_stats').doc('global').get();
+            
+            if (!doc.exists) {
+                throw new Error('統計文檔不存在');
+            }
+            
+            const data = doc.data();
+            return {
+                totalUsers: data.total_users || 0,
+                distribution: data.personality_distribution || {}
+            };
         }
 
         function getRarityLevel(percentage) {
@@ -1544,6 +1608,7 @@
         }
 
         function getPersonalityPercentage(type) {
+            // 模擬數據的固定百分比
             const percentages = {
                 pioneer: 23,
                 creator: 28,
