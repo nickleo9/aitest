@@ -1069,6 +1069,7 @@
         // AI人格類型定義
         const personalityTypes = {
             pioneer: {
+                code: 'P-Type',
                 icon: '🚀',
                 name: 'AI先鋒者',
                 subtitle: '"AI的未來，我來創造！"',
@@ -1082,6 +1083,7 @@
                 }
             },
             creator: {
+                code: 'C-Type',
                 icon: '🎨',
                 name: 'AI創意家',
                 subtitle: '"AI是我的創意夥伴！"',
@@ -1095,6 +1097,7 @@
                 }
             },
             efficiency: {
+                code: 'E-Type', 
                 icon: '⚡',
                 name: 'AI效率王',
                 subtitle: '"效率就是生產力！"',
@@ -1108,6 +1111,7 @@
                 }
             },
             scholar: {
+                code: 'S-Type', 
                 icon: '🔬',
                 name: 'AI學者',
                 subtitle: '"知識就是力量！"',
@@ -1470,6 +1474,7 @@
                 occupation: document.getElementById('occupation').value || '未知', 
                 age_group: document.getElementById('ageGroup').value || '未知',
                 personality_type: dominantType,
+                personality_code: personalityTypes[dominantType].code,
                 type_scores: typeCounts,
                 answers: answers
             };
@@ -1495,7 +1500,7 @@
             
             // 設定人格徽章和基本資訊
             document.getElementById('personalityBadge').textContent = personality.icon;
-            document.getElementById('resultTitle').textContent = personality.name;
+            document.getElementById('resultTitle').textContent =`${personality.name} (${personality.code})`;
             document.getElementById('resultSubtitle').textContent = personality.subtitle;
             document.getElementById('resultDescription').textContent = personality.description;
             
@@ -1897,7 +1902,7 @@
                                 <div class="personality-stat-icon">${personality.icon}</div>
                                 <div class="personality-stat-info">
                                     <div class="personality-stat-name">
-                                        ${personality.name} ${isUserType ? '(你的類型)' : ''}
+                                      ${personality.name} (${personality.code}) ${isUserType ? '(你的類型)' : ''}
                                     </div>
                                     <div class="personality-stat-subtitle">${personality.subtitle}</div>
                                     <div style="font-size: 14px; color: #666; margin-top: 5px;">
@@ -2001,7 +2006,7 @@
             const percentage = getPersonalityPercentage(userResult.personality_type);
             const shareText = `我剛完成了AI人格特質測驗！
 
-🎯 我的AI人格：${personality.name}
+🎯 我的AI人格：${personality.name} (${personality.code})
 ${personality.subtitle}
 🦅 我的AI夥伴：${personality.animal}
 📊 全球佔比：${percentage}%
@@ -2010,7 +2015,7 @@ ${personality.subtitle}
 
 由 Nick Chang | ZN Studio 創作
 Nick Chang｜nickleo051216@gmail.com｜0932-684-051
-#AI人格測驗 #${personality.name} #人工智慧`;
+#AI人格測驗 #${personality.name.replace(/\s/g, '')} #${personality.code}`;
             
             if (navigator.share) {
                 navigator.share({
