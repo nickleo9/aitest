@@ -718,7 +718,7 @@
 
         function initializeFirebase() {
             try {
-                if (firebaseConfig.apiKey !== "你的API金鑰") {
+                if (firebaseConfig.apiKey !== "AIzaSyAqwdMVnhrj0Ktj9BTEOVJdpzBLPpMaTq") {
                     firebase.initializeApp(firebaseConfig);
                     db = firebase.firestore();
                     firebaseInitialized = true;
@@ -1071,34 +1071,75 @@
             document.getElementById('progressText').textContent = `問題 ${currentQuestion + 1} / ${questions.length}`;
         }
 
-        async function calculateResult() {
-            const totalScore = Object.values(answers).reduce((sum, value) => sum + value, 0);
-            const level = determineLevel(totalScore);
-            
-            const userData = {
-                username: document.getElementById('username').value.trim(),
-                location: document.getElementById('location').value || '未知',
-                occupation: document.getElementById('occupation').value || '未知', 
-                age_group: document.getElementById('ageGroup').value || '未知',
-                score: totalScore,
-                level: level,
-                answers: answers
-            };
+    // ... (calculateResult 函數的前半部分) ...
 
-            showLoading('正在儲存結果並計算全球排名...');
-            
-            const result = await submitTestResult(userData);
-            
-            hideLoading();
-            
-            userResult = {
-                ...userData,
-                rank: result.rank,
-                userId: result.userId
-            };
-            
-            showResult(level, totalScore, result.rank);
+async function calculateResult() {
+    const totalScore = Object.values(answers).reduce((sum, value) => sum + value, 0);
+    const level = determineLevel(totalScore);
+    
+    const userData = {
+        username: document.getElementById('username').value.trim(),
+        location: document.getElementById('location').value || '未知',
+        occupation: document.getElementById('occupation').value || '未知', 
+        age_group: document.getElementById('ageGroup').value || '未知',
+        score: totalScore,
+        level: level,
+        answers: answers
+    };
+
+    showLoading('正在儲存結果並計算全球排名...');
+    
+    // submitTestResult 已經幫我們拿到了 rank
+    const submitResult = await submitTestResult(userData);
+    
+    hideLoading();
+    
+    // 這裡我們直接使用 submitTestResult 的結果
+    if (submitResult.success) {
+        userResult = {
+            ...userData,
+            rank: submitResult.rank,
+            userId: submitResult.userId
+        };
+
+        // 現在來獲取總人數並計算百分位
+        const { totalUsers, percentile } = await calculatePercentile(submitResult.rank);
+        
+        // 呼叫 showResult
+        showResult(level, totalScore, submitResult.rank, percentile, totalUsers);
+
+    } else {
+        alert('提交結果失敗，請稍後再試。');
+        // 可以考慮重新載入頁面或返回首頁
+    }
+}
+
+// 新增這個輔助函數來獲取總人數和計算百分位
+async function calculatePercentile(userRank) {
+    if (!firebaseInitialized) {
+        // 模擬模式
+        const totalUsers = 12987;
+        const percentile = Math.round((1 - (userRank / totalUsers)) * 100);
+        return { totalUsers, percentile };
+    }
+
+    try {
+        const statsDoc = await db.collection('stats').doc('global').get();
+        if (statsDoc.exists) {
+            const totalUsers = statsDoc.data().total_users;
+            const percentile = Math.round((1 - (userRank / totalUsers)) * 100);
+            return { totalUsers, percentile };
         }
+        // 如果 stats 文件不存在，給一個預設值
+        return { totalUsers: 1, percentile: 100 };
+    } catch (error) {
+        console.error('獲取總用戶數失敗:', error);
+        // 失敗時的回退方案
+        const totalUsers = 12987; // 使用一個大概的數字
+        const percentile = Math.round((1 - (userRank / totalUsers)) * 100);
+        return { totalUsers, percentile };
+    }
+}
 
         function determineLevel(score) {
             if (score <= 8) return 'bronze';
@@ -1108,32 +1149,30 @@
             return 'master';
         }
 
-        function showResult(level, score, rank) {
-            const levelData = {
-                bronze: { badge: '🥉', title: 'AI 新手村', color: '#CD7F32' },
-                silver: { badge: '🥈', title: 'AI 探索者', color: '#C0C0C0' },
-                gold: { badge: '🥇', title: 'AI 實踐家', color: '#FFD700' },
-                diamond: { badge: '💎', title: 'AI 專家', color: '#B9F2FF' },
-                master: { badge: '👑', title: 'AI 大師', color: '#9400D3' }
-            };
+function showResult(level, score, rank, percentile, total) {
+    const levelData = {
+        bronze: { badge: '🥉', title: 'AI 新手村', color: '#CD7F32' },
+        silver: { badge: '🥈', title: 'AI 探索者', color: '#C0C0C0' },
+        gold: { badge: '🥇', title: 'AI 實踐家', color: '#FFD700' },
+        diamond: { badge: '💎', title: 'AI 專家', color: '#B9F2FF' },
+        master: { badge: '👑', title: 'AI 大師', color: '#9400D3' }
+    };
 
-            const data = levelData[level];
-            const percentile = Math.floor((1 - rank / 15000) * 100);
+    const data = levelData[level] || levelData["bronze"];
 
-            document.getElementById('testContainer').style.display = 'none';
-            
-            document.getElementById('resultBadge').textContent = data.badge;
-            document.getElementById('resultTitle').textContent = data.title;
-            document.getElementById('resultDescription').textContent = getResultDescription(level);
-            document.getElementById('userScore').textContent = `${score}/25`;
-            document.getElementById('userRank').textContent = `#${rank.toLocaleString()}`;
-            document.getElementById('userPercentile').textContent = `前${percentile}%`;
-            
-            document.getElementById('resultContainer').classList.add('show');
-            document.getElementById('resultContainer').scrollIntoView({ behavior: 'smooth' });
-            
-            createCelebration();
-        }
+    document.getElementById('testContainer').style.display = 'none';
+    document.getElementById('resultBadge').textContent = data.badge;
+    document.getElementById('resultTitle').textContent = data.title;
+    document.getElementById('resultDescription').textContent = getResultDescription(level);
+    document.getElementById('userScore').textContent = `${score}/25`;
+    document.getElementById('userRank').textContent = `#${rank.toLocaleString()} / ${total}`;
+    document.getElementById('userPercentile').textContent = `前${percentile}%`;
+
+    document.getElementById('resultContainer').classList.add('show');
+    document.getElementById('resultContainer').scrollIntoView({ behavior: 'smooth' });
+
+    createCelebration();
+}
 
         function getResultDescription(level) {
             const descriptions = {
@@ -1202,7 +1241,7 @@
             
             content.innerHTML = leaderboard.map(user => {
                 const medal = user.rank === 1 ? '🥇' : user.rank === 2 ? '🥈' : user.rank === 3 ? '🥉' : '';
-                const isCurrentUser = userResult && user.username === userResult.username && user.score === userResult.score;
+                const isCurrentUser = userResult && user.id === userResult.userId;
                 
                 return `
                     <div class="leaderboard-item" style="${isCurrentUser ? 'background: linear-gradient(135deg, #e3f2fd, #f0f8ff); border: 2px solid #2196f3;' : ''}">
